@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Blog | A-Plus Branding Technologies — Cape Town</title>
+<meta name="description" content="Practical tips on getting your local business found online — websites, Google Business, AI receptionists and local SEO for Cape Town businesses." />
+<meta name="theme-color" content="#080C14" />
+<link rel="canonical" href="https://aplusbrandingtechnologies.com/blog/" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23080C14'/%3E%3Ctext x='16' y='23' font-family='Arial,sans-serif' font-size='19' font-weight='700' fill='%232DE1C2' text-anchor='middle'%3EA%2B%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../assets/blog.css" />
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="logo" href="../index.html"><span class="mark">A+</span><span>A-Plus<small>Branding Technologies</small></span></a>
+    <nav class="links">
+      <a href="../index.html#services">Services</a>
+      <a href="../index.html#work">Our work</a>
+      <a href="../index.html#pricing">Pricing</a>
+      <a href="index.html" class="on">Blog</a>
+      <a class="btn btn-primary" href="../index.html#contact" style="padding:11px 20px">Get free demo</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="crumbs"><a href="../index.html">Home</a> &nbsp;/&nbsp; Blog</div>
+  <div class="page-head">
+    <span class="kicker">Insights</span>
+    <h1 style="margin-top:18px">Get found. Get <span class="grad-text">booked.</span></h1>
+    <p>Practical, no-nonsense advice on getting more customers online — for local businesses across Cape Town.</p>
+  </div>
+  <div class="grid-blog" id="blog-list"></div>
+</div>
+
+<footer>
+  <div class="wrap foot-in">
+    <span>© <span id="yr"></span> A-Plus Branding Technologies · Blouberg, Cape Town</span>
+    <span><a href="../index.html">Home</a> · <a href="../index.html#contact">Contact</a></span>
+  </div>
+</footer>
+
+<script src="../assets/posts.js"></script>
+<script>
+document.getElementById('yr').textContent=new Date().getFullYear();
+function fmtDate(s){try{return new Date(s).toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric'});}catch(e){return s;}}
+const PFX = location.pathname.includes('/blog/') ? '../' : '';
+const list=document.getElementById('blog-list');
+(window.POSTS||[]).forEach(b=>{
+  const a=document.createElement('a'); a.className="blogcard"; a.href=PFX+b.url;
+  a.innerHTML=`<div class="bc-tag">${b.tag} · ${fmtDate(b.date)}</div><h2>${b.title}</h2><p>${b.excerpt}</p><span class="bc-go">Read more →</span>`;
+  list.appendChild(a);
+});
+</script>
+</body>
+</html>
