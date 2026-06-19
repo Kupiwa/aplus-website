@@ -389,7 +389,7 @@
       <a class="btn btn-primary" onclick="openSam()">Chat with Sam now</a>
     </div>
     <div class="chatdemo rv" aria-hidden="true">
-      <div class="ch-top"><div class="av"><img src="assets/brand/sam-avatar.svg" alt="Sam" /></div><div><b>Sam</b><small>Online now</small></div></div>
+      <div class="ch-top"><div class="av"><img src="assets/brand/sam-photo.jpg" alt="Sam" /></div><div><b>Sam</b><small>Online now</small></div></div>
       <div class="ch-body">
         <div class="bub bot">Hi! 👋 I'm Sam, the AI receptionist from A-Plus. What kind of business do you run?</div>
         <div class="bub user">I run a plumbing business in Table View</div>
@@ -508,10 +508,10 @@
 </footer>
 
 <button id="sam-fab" aria-label="Chat with Sam" onclick="toggleSam()">
-  <img src="assets/brand/sam-avatar.svg" alt="Chat with Sam" />
+  <img src="assets/brand/sam-photo.jpg" alt="Chat with Sam" />
 </button>
 <div id="sam-panel" role="dialog" aria-label="Chat with Sam">
-  <div class="top"><div class="av"><img src="assets/brand/sam-avatar.svg" alt="Sam" /></div><div><b>Sam</b><small>AI receptionist · online</small></div><button class="x" aria-label="Close chat" onclick="toggleSam()">×</button></div>
+  <div class="top"><div class="av"><img src="assets/brand/sam-photo.jpg" alt="Sam" /></div><div><b>Sam</b><small>AI receptionist · online</small></div><button class="x" aria-label="Close chat" onclick="toggleSam()">×</button></div>
   <div id="sam-msgs"></div>
   <div class="qr" id="sam-qr"></div>
   <form class="sam-input" onsubmit="samType(event)">
@@ -733,6 +733,8 @@ async function sendToSam(text){
   samBusy=false; renderQuick();
 }
 function samType(e){ e.preventDefault(); const inp=document.getElementById('sam-in'),txt=inp.value.trim(); if(!txt)return; inp.value=''; sendToSam(txt); }
+/* Proactive greeting: open Sam 4s after arrival, once per visit */
+if(!sessionStorage.getItem('samGreeted')){ setTimeout(()=>{ if(!samStarted){ openSam(); sessionStorage.setItem('samGreeted','1'); } }, 4000); }
 </script>
 </body>
 </html>
