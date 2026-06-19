@@ -700,31 +700,35 @@ if(bl && window.POSTS){
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.12});
 document.querySelectorAll('.rv').forEach((el,i)=>{el.style.transitionDelay=(i%4*60)+'ms';io.observe(el);});
 
-/* ---- SAM chat widget ---- */
+/* ---- SAM chat widget (connected to the A-Plus AI agent on n8n) ---- */
+const SAM_WEBHOOK="https://marlextreme.app.n8n.cloud/webhook/b6b1acf6-5fff-42df-a499-ef30894b16a5";
 const panel=document.getElementById('sam-panel'),msgs=document.getElementById('sam-msgs'),qrBox=document.getElementById('sam-qr');
-let samStarted=false;
-const SAM_REPLIES={
-  website:"Love it! A website is the foundation — it's what makes you show up on Google and gives Sam a home. I can build you a free demo to see first. Want to continue on WhatsApp so we can get the details?",
-  ai:"Great question! I'm a 24/7 AI receptionist — I answer your customers instantly, qualify them and book jobs even while you sleep. Want to see me set up for your business? Let's chat on WhatsApp.",
-  pricing:"Sites start at R2 500 once-off, with hosting from R199/mo. The popular Growth plan (site + AI receptionist + Google setup) is R4 500 + from R299/mo. Want an exact quote on WhatsApp?",
-  demo:"Awesome — a free demo is the best place to start. No cost, no obligation. Tap below to send your details on WhatsApp and we'll build it for you.",
-  default:"Good question! The fastest way to get you a proper answer is a quick WhatsApp chat with the A-Plus team. Tap below and we'll sort you out."
-};
-const QUICK=[["I want a website","website"],["Tell me about the AI receptionist","ai"],["What does it cost?","pricing"],["Book my free demo","demo"]];
+let samStarted=false, samHistory=[], samBusy=false;
+const QUICK=[["I want a website"],["Tell me about the AI receptionist"],["What does it cost?"],["Book a free demo"]];
 function toggleSam(){ panel.classList.contains('open')?panel.classList.remove('open'):openSam(); }
-function openSam(){ panel.classList.add('open'); if(!samStarted){samStarted=true; bot("Hi! 👋 I'm Sam, the AI receptionist from A-Plus. How can I help your business today?"); renderQuick();} }
+function openSam(){ panel.classList.add('open'); if(!samStarted){samStarted=true; bot("Hi! 👋 I'm Sam from A-Plus. What can I help your business with today?"); renderQuick();} }
 function down(){ msgs.scrollTop=msgs.scrollHeight; }
-function bot(t){ const d=document.createElement('div');d.className='bub bot';d.textContent=t;msgs.appendChild(d);down(); }
+function bot(t){ const d=document.createElement('div');d.className='bub bot';d.textContent=t;msgs.appendChild(d);down();return d; }
 function user(t){ const d=document.createElement('div');d.className='bub user';d.textContent=t;msgs.appendChild(d);down(); }
 function waBtn(m){ const a=document.createElement('a');a.className='btn btn-primary';a.style.cssText='font-size:14px;padding:11px 18px';a.textContent='Continue on WhatsApp →';a.href=waLink(m);a.target='_blank';a.rel='noopener';msgs.appendChild(a);down(); }
-function renderQuick(){ qrBox.innerHTML=''; QUICK.forEach(([l,k])=>{const b=document.createElement('button');b.textContent=l;b.onclick=()=>answer(l,k);qrBox.appendChild(b);}); }
-function answer(l,k){ qrBox.innerHTML='';user(l); setTimeout(()=>{bot(SAM_REPLIES[k]||SAM_REPLIES.default);waBtn("Hi A-Plus, "+l.toLowerCase());setTimeout(renderQuick,400);},450); }
-function samType(e){ e.preventDefault(); const inp=document.getElementById('sam-in'),txt=inp.value.trim(); if(!txt)return; inp.value='';qrBox.innerHTML='';user(txt);
-  const t=txt.toLowerCase(); let k='default';
-  if(/site|website|web|page/.test(t))k='website'; else if(/ai|reception|sam|bot|chat|automat/.test(t))k='ai';
-  else if(/price|cost|how much|quote|rand|r\d/.test(t))k='pricing'; else if(/demo|book|start|free|begin/.test(t))k='demo';
-  setTimeout(()=>{bot(SAM_REPLIES[k]);waBtn("Hi A-Plus, "+txt);setTimeout(renderQuick,400);},450);
+function renderQuick(){ qrBox.innerHTML=''; QUICK.forEach(([l])=>{const b=document.createElement('button');b.textContent=l;b.onclick=()=>sendToSam(l);qrBox.appendChild(b);}); }
+async function sendToSam(text){
+  if(samBusy) return; samBusy=true; qrBox.innerHTML=''; user(text);
+  const typing=bot("Sam is typing…");
+  try{
+    const res=await fetch(SAM_WEBHOOK,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:text,history:samHistory})});
+    const data=await res.json().catch(()=>null);
+    const reply=data&&(data.reply||data.message||data.output||data.text);
+    typing.remove();
+    if(reply){ bot(reply); samHistory.push({role:"user",content:text}); samHistory.push({role:"assistant",content:reply}); }
+    else { bot("Thanks! Tap below and the A-Plus team will help you on WhatsApp."); waBtn("Hi A-Plus, "+text); }
+  }catch(e){
+    typing.remove();
+    bot("I'm having a moment connecting 😅 Tap below to chat with the team on WhatsApp — we'll help you right away."); waBtn("Hi A-Plus, "+text);
+  }
+  samBusy=false; renderQuick();
 }
+function samType(e){ e.preventDefault(); const inp=document.getElementById('sam-in'),txt=inp.value.trim(); if(!txt)return; inp.value=''; sendToSam(txt); }
 </script>
 </body>
 </html>
